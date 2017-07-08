@@ -1,0 +1,47 @@
+Documents:
+user {
+	_id: <id>,
+	website: <website>,
+	region: <region>,
+	platforms: [<platform>],
+	tournaments: [tournament._id], // Figure this out
+	twitter: {username: <handle>, followers: <followers>},
+	twitch: {username: <username>, followers: <followers>},
+	youtube: {username: <username>, subscribers: <subscribers>}
+}
+
+tournament {
+	_id: <id>,
+	website: <website>,
+	region: <region>,
+	platform: <platform>,
+	game: <game>,
+	date: <date (including time)>,
+	details: <specialized tournament info>,
+	teamSize: <team size>,
+	teamCount: <team count>,
+	users: [user._id] // Figure this out
+}
+
+HTTP request for GB:
+var http = require('http');
+
+var host = "gamebattles.majorleaguegaming.com";
+var path = "/mobile/miniclip-8-ball-pool/tournament/1v1-miniclip-8-ball-07-06/teams";
+
+var options = {
+	host: host,
+	port: 80,
+	path: path,
+	headers: {'User-Agent':'javascript'}
+};
+
+http.get(options, function(res) {
+	console.log("Got response: " + res.statusCode);
+	res.setEncoding('utf8');
+	res.on('data', (chunk) => {
+		console.log(chunk);
+	});
+}).on('error', function(e) {
+	console.log("Got error: " + e.message);
+});
