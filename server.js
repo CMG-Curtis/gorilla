@@ -1,4 +1,5 @@
 // Dependencies 
+var util = require('util');
 var MongoClient = require('mongodb').MongoClient;
 var express = require('express');
 var app = express();
@@ -27,36 +28,69 @@ app.get('/db/*', (req, res) => {
 	// TODO check if exists 
 });
 
-app.post('/db/*', (req, res) => {
-	var collection = req.path.split('/');
-	collection = collection[collection.length - 1];
-	console.log('POST request recieved for: ' + collection);
-	// Get info from request
+// The POST node to insert data to the database
+app.post('/db', (req, res) => {
+	// Piece together req body
 	var body = '';
 	req.on('data', (chunk) => {
 		body += chunk;
 	}).on('end', () => {
-		var doc = JSON.parse(body);
-		console.log(doc);
-		if(doc._user == dbUsername && doc._pass == dbPassword){
-			MongoClient.connect(DATABASE_URL, function(err, db) {
-				if (err) throw err;
-				var col = db.collection(collection);
-				col.insertOne(doc);
-				res.end('Successful insertion');
+		// Parse req body into object
+		var reqDoc = JSON.parse(body);
+		// Connect to db with given credentials
+		MongoClient.connect(getDatabaseURL(reqDoc.credentials.username, reqDoc.credentials.password), (err, db) => {
+			if (err) {
+				// Send back any error messages
+				res.send({err: err.message, document: reqDoc.document});
+				console.log('Invalid authentication (POST): ' + util.inspect(reqDoc.credentials));
+			} else {
+				var col = db.collection(reqDoc.collection);
+				col.insertOne(reqDoc.document);
+				// Ping back the document received
+				res.send({document: reqDoc.document});
 				db.close();
-			});
-		} else {
-			res.end('Invalid credentials');
-		}
-		// Send things back to client
+			}
+		});
 	});
 });
+
+// The GET node to aqquire information from our database
+app.get('/db', (req, res) => {
+	var body = '';
+	req.on('data', (chunk) => {
+		body += chunk;
+	}).on('end', () => {
+		console.log(body);
+		var reqDoc = JSON.parse(body);
+		MongoClient.connect(getDatabaseURL(reqDoc.credentials.username, reqDoc.credentials.password), (err, db) => {
+			if (err) {
+				// Send back any error messages
+				res.send({info: err.message, document: reqDoc.document});
+				console.log('Invalid authentication (GET): ' + util.inspect(reqDoc.credentials));
+			} else {
+				var col = db.collection(reqDoc.collection);
+				if(reqDoc.id){
+					// return object with given id
+					// TODO
+					var result = col.findOne({_id:reqDoc.id});
+					console.log(result);
+				} else if(reqDoc.query){
+					// return a list of query results
+					// TODO
+				}
+				db.close();
+			}
+		});
+	});
+});
+
+// TODO restful get nodes for viewing the database
+
 
 // Get all entries for the given collection, stringify them, and add <br>s between them
 function getEntriesForHTML(collection, db, req, res){
 	var col = db.collection(collection);
-	var allUsers = col.find({}, {_id: 0, _user: 0, _pass: 0}).toArray(function(err, items) {
+	var allUsers = col.find({}, {_user: 0, _pass: 0}).toArray(function(err, items) {
 		if (err) throw err;
 		var responseText = '';
 		for(item of items){
@@ -93,3 +127,8 @@ app.use(express.static('public'));
 app.listen(port, () => {
 	console.log('Webserver listening on ' + port);
 });
+
+
+function getDatabaseURL(username, password){
+	return 'mongodb://' + username + ':' + password + '@localhost:27017/' + DATABASE;
+}

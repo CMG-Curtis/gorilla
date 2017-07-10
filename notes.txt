@@ -1,6 +1,7 @@
 Documents:
 user {
 	_id: <id>,
+	username: <username>,
 	website: <website>,
 	region: <region>,
 	platforms: [<platform>],
