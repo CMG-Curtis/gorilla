@@ -1,11 +1,30 @@
 var Database = {};
 
+// Insert a document into the server
+Database.insertDocument = function(username, password, collection, doc, callback){
+	Database._serverRequest(username, password, '/db/' + collection + '/', function(body){
+		body.document = doc;
+	}, function(response){
+		if(callback){
+			callback(response);
+		}
+	})
+};
+
+// Get a specific document
+Database.getDocumentById = function(username, password, collection, id, callback){
+	Database.getDocuments(username, password, collection, { _id: id }, function(docs){
+		if(callback){
+			callback(docs[0]);
+		}
+	});
+};
+
 // Used to query documents from the server
 Database.getDocuments = function(username, password, collection, query, callback){
 	Database._serverRequest(username, password, '/db/' + collection + '/', function(body){
 		body.query = query;
 	}, function(response){
-		//console.log(response);
 		if(callback){
 			callback(response);
 		}
@@ -14,6 +33,7 @@ Database.getDocuments = function(username, password, collection, query, callback
 
 // All requests to the server must be POSTs so that they can pass along the credentials in the body of the request
 Database._serverRequest = function(username, password, path, constructBody, onResponse){
+	// TODO check for required paramaters
 	var http = new XMLHttpRequest();
 	http.open('POST', path);
 	http.setRequestHeader("Content-type", "application/json");
@@ -22,10 +42,9 @@ Database._serverRequest = function(username, password, path, constructBody, onRe
 			var doc = JSON.parse(http.responseText);
 			if(doc.err){
 				console.error(doc.err);
-			} else {
-				if(onResponse){
-					onResponse(doc);
-				}
+			}
+			if(onResponse){
+				onResponse(doc);
 			}
 		}
 	}
@@ -33,7 +52,6 @@ Database._serverRequest = function(username, password, path, constructBody, onRe
 	body.credentials = {};
 	body.credentials.username = username;
 	body.credentials.password = password;
-	body.query = {};
 	if(constructBody){
 		constructBody(body);
 	}
@@ -47,15 +65,21 @@ function User(username, website, region, platforms, tournaments, twitterHandle, 
 	u.region = region;
 	u.platforms = platforms;
 	u.tournaments = tournaments;
-	u.twitter = {};
-	u.twitter.username = twitterHandle;
-	u.twitter.followers = twitterFollowers;
-	u.twitch = {};
-	u.twitch.username = twitchUsername;
-	u.twitch.followers = twitchFollowers;
-	u.youtube = {};
-	u.youtube.username = youtubeUsername;
-	u.youtube.username = youtubeSubscribers;
+	if(twitterHandle || twitterFollowers){
+		u.twitter = {};
+		u.twitter.username = twitterHandle;
+		u.twitter.followers = twitterFollowers;
+	}
+	if(twitchUsername || twitchFollowers){
+		u.twitch = {};
+		u.twitch.username = twitchUsername;
+		u.twitch.followers = twitchFollowers;
+	}
+	if(youtubeUsername || youtubeSubscribers){
+		u.youtube = {};
+		u.youtube.username = youtubeUsername;
+		u.youtube.username = youtubeSubscribers;
+	}
 	return u;
 }
 

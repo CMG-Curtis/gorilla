@@ -22,7 +22,7 @@ app.post('/db/:collection/', (req, res) => {
 			var reqDoc = JSON.parse(body);
 			MongoClient.connect(getDatabaseURL(reqDoc.credentials.username, reqDoc.credentials.password), (err, db) => {
 				if (err) {
-					res.send(JSON.stringify(err));
+					res.send(generateResponse([], err));
 					return;
 				}
 				if(reqDoc.query){
@@ -33,29 +33,39 @@ app.post('/db/:collection/', (req, res) => {
 					}
 					db.collection(req.params.collection).find(query).toArray((err, docs) => {
 						if (err) {
-							res.send(JSON.stringify(err));
+							res.send(generateResponse([], err));
 							return;
 						}
-						res.send(JSON.stringify(docs));
-						db.close();
+						res.send(generateResponse([docs]));
 					});
 				} else if(reqDoc.document){
 					if(reqDoc.document._id){
 						reqDoc.document._id = ObjectID(reqDoc.document._id);
-						// TODO Replace old document
+						db.collection(req.params.collection).replaceOne({_id: reqDoc.document._id},reqDoc.document);
 					} else {
-						// TODO insert new document
-						// TODO check if inserting a document with the same id overrides it anyway
+						db.collection(req.params.collection).insertOne(reqDoc.document);
 					}
+					res.send(generateResponse([reqDoc.document]));
 				}
+				db.close();
 			});
 		});
 	} else {
-		res.send('Invalid collection');
+		res.send(generateResponse([],'Invalid collection'));
 	}
 });
 
+function generateResponse(documents, err){
+	var responseObject = {};
+	responseObject.documents = documents;
+	if(err){
+		responseObject.err = err;
+	}
+	return JSON.stringify(responseObject);
+}
+
 // Remove all entries from the given collection
+// TODO create a way of exposing this to werver request with proper response
 function deleteAllEntries(username, password, collection){
 	MongoClient.connect(getDatabaseURL(username, password), (err, db) => {
 		if (err) throw err;

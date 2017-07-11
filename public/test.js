@@ -10,3 +10,9 @@ submit.addEventListener('click', function(){
 		data.innerHTML = JSON.stringify(response);
 	});
 });
+
+var user1 = new User('curtis','umg','NA',['XB1', 'PS4'],[],'tweeter',300);
+
+Database.insertDocument(username.value, password.value, collection.value, user1, function(response){
+	data.innerHTML = JSON.stringify(response);
+});
