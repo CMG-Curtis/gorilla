@@ -46,3 +46,10 @@ http.get(options, function(res) {
 }).on('error', function(e) {
 	console.log("Got error: " + e.message);
 });
+
+
+
+
+Read and Write protocols:
+
+Authentication is done through the body or the request, and therefore all requests to write AND read must be done through a POST request

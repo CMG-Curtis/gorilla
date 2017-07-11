@@ -1,46 +1,43 @@
 var Database = {};
 
-var usernameField = document.getElementById('username');
-var passwordField = document.getElementById('password');
-var stat = document.getElementById('status');
+// Used to query documents from the server
+Database.getDocuments = function(username, password, collection, query, callback){
+	Database._serverRequest(username, password, '/db/' + collection + '/', function(body){
+		body.query = query;
+	}, function(response){
+		//console.log(response);
+		if(callback){
+			callback(response);
+		}
+	});
+};
 
-var testButton = document.getElementById('testButton');
-
-var USERS_COLLECTION = 'users';
-var TOURNAMENTS_COLLECTION = 'tournaments';
-
-Database.users = USERS_COLLECTION;
-Database.tournaments = TOURNAMENTS_COLLECTION;
-Database.post = postToDB;
-
-testButton.addEventListener('click', function(){
-	postToDB('users', {number: Math.random()});
-});
-
-
-function postToDB(collection, doc){
+// All requests to the server must be POSTs so that they can pass along the credentials in the body of the request
+Database._serverRequest = function(username, password, path, constructBody, onResponse){
 	var http = new XMLHttpRequest();
-	http.open('POST', '/db/' + collection, true);
-	http.setRequestHeader("Content-type", "text/plain");
+	http.open('POST', path);
+	http.setRequestHeader("Content-type", "application/json");
 	http.onreadystatechange = function() {
 		if(http.readyState == 4 && http.status == 200) {
-			var text = http.responseText;
-			stat.innerHTML = text;
-			console.log(text);
+			var doc = JSON.parse(http.responseText);
+			if(doc.err){
+				console.error(doc.err);
+			} else {
+				if(onResponse){
+					onResponse(doc);
+				}
+			}
 		}
 	}
-	doc._user = usernameField.value;
-	doc._pass = passwordField.value;
-	http.send(JSON.stringify(doc));
-}
-
-// This should only be called by insertTrounament
-function insertUser(u){
-	// TODO check if that user already exists by looking for an entry with same username and website and update that entry if it already exists
-}
-
-function insertTournament(t){
-	// TODO check all users 
+	var body = {};
+	body.credentials = {};
+	body.credentials.username = username;
+	body.credentials.password = password;
+	body.query = {};
+	if(constructBody){
+		constructBody(body);
+	}
+	http.send(JSON.stringify(body));
 }
 
 function User(username, website, region, platforms, tournaments, twitterHandle, twitterFollowers, twitchUsername, twitchFollowers, youtubeUsername, youtubeSubscribers){
