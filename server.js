@@ -1,15 +1,53 @@
 // Dependencies 
-var util = require('util');
-var MongoClient = require('mongodb').MongoClient;
-var ObjectID = require('mongodb').ObjectID;
-var express = require('express');
-var app = express();
-var port = 3000;
+const http = require('http');
+const https = require('https');
+const util = require('util');
+const MongoClient = require('mongodb').MongoClient;
+const ObjectID = require('mongodb').ObjectID;
+const express = require('express');
+const app = express();
+const port = 3000;
+
 
 // Database information
 var DATABASE = 'gorilla';
 
 var collections = ['users', 'tournaments'];
+
+app.post('/html', (req, res) => {
+	var body = '';
+	req.on('data', (chunk) => {
+		body += chunk;
+	}).on('end', () => {
+		var reqDoc = JSON.parse(body);
+		if(!reqDoc.url){
+			res.send('Invalid url');
+			return;
+		}
+		var u = reqDoc.url.split('/');
+		var host = u[2];
+		var end = u.slice(3, u.length);
+		var p = '';
+		for(part of end){
+			p += '/' + part
+		}
+		var options = {
+			host: host,
+			path: p,
+			headers: {'User-Agent':'javascript'}
+			//headers: {'User-Agent':'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0'}
+		};
+		var protocol = (u[0] == 'http' ? http : https);
+		protocol.get(options, (r) => {
+			var body = '';
+			r.on('data', (chunk) => {
+				body += chunk;
+			}).on('end', () => {
+				res.send(body);
+			});
+		});
+	});
+});
 
 // The node for inserting documents, as well as retreiving them with authentication
 app.post('/db/:collection/', (req, res) => {
@@ -23,8 +61,10 @@ app.post('/db/:collection/', (req, res) => {
 			MongoClient.connect(getDatabaseURL(reqDoc.credentials.username, reqDoc.credentials.password), (err, db) => {
 				if (err) {
 					res.send(generateResponse([], err));
+					db.close()
 					return;
 				}
+				// TODO if reqDoc.delete
 				if(reqDoc.query){
 					var query = reqDoc.query;
 					if(query._id){
@@ -34,20 +74,23 @@ app.post('/db/:collection/', (req, res) => {
 					db.collection(req.params.collection).find(query).toArray((err, docs) => {
 						if (err) {
 							res.send(generateResponse([], err));
+							db.close()
 							return;
 						}
-						res.send(generateResponse([docs]));
+						res.send(generateResponse(docs));
+						db.close()
 					});
 				} else if(reqDoc.document){
 					if(reqDoc.document._id){
 						reqDoc.document._id = ObjectID(reqDoc.document._id);
 						db.collection(req.params.collection).replaceOne({_id: reqDoc.document._id},reqDoc.document);
+						db.close();
 					} else {
 						db.collection(req.params.collection).insertOne(reqDoc.document);
+						db.close();
 					}
 					res.send(generateResponse([reqDoc.document]));
 				}
-				db.close();
 			});
 		});
 	} else {
@@ -74,6 +117,9 @@ function deleteAllEntries(username, password, collection){
 		db.close();
 	});
 }
+
+//deleteAllEntries('cmguser', 'cmgpass', 'users');
+//deleteAllEntries('cmguser', 'cmgpass', 'tournaments');
 
 // Setup static routes for webserver
 app.use(express.static('public'));

@@ -1,24 +1,47 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Database Viewer</title>
+		<title>Project Gorilla</title>
 		<link rel="stylesheet" type="text/css" href="style.css">
 	</head>
 	<body>
-		<h2>Database viewer:</h2>
-		<p>Username: <input type="text" id="username" value="cmguser"></p>
-		<p>Password: <input type="password" id="password" value="cmgpass"></p>
-		<p>Collection: <select id="collection">
-			<option value="users">users</option>
-			<option value="tournaments">tournaments</option>
-		</select></p>
-		<p>Query: <input type="text" id="query" value="{}"></p>
-		<button id="submit">Submit</button>
-		<br>
-		<h3>Response</h3>
-		<hr>
-		<div id="data"></div>
+		<div class="flex-row span">
+			<div class="flex-column">
+				<div class="simple">
+					<h3>Login</h3>
+					<div id="login-div">
+						<p>Username: <input type="text" id="username" value="cmguser"></p>
+						<p>Password: <input type="password" id="password" value="cmgpass"></p>
+						<button id="login">Login</button>
+					</div>
+				</div>
+				<div class="simple">
+					<h3>Database viewer</h3>
+					<div>
+						<p>Collection: <select id="collection">
+							<option value="users">users</option>
+							<option value="tournaments">tournaments</option>
+						</select></p>
+						<p>Query: <input type="text" id="query" value="{}"></p>
+						<button id="submit">Submit</button>
+					</div>
+				</div>
+			</div>
+			<div class="simple" id="response">
+				<h3>Latest Server Response</h3>
+				<pre id="server-response"></pre>
+			</div>
+		</div>
+		<div class="span">
+			<div class="simple">
+				<h3>UMG Farmer</h3>
+				<div>
+					<p>Tournament link: <input type="text" id="umg-tournament" value="https://umggaming.com/tournaments/1862/teams"></p>
+					<button id="umg-farm">Farm Users</button>
+				</div>
+			</div>
+		</div>
 	</body>
 	<script type="text/javascript" src="database.js"></script>
-	<script type="text/javascript" src="test.js"></script>
+	<script type="text/javascript" src="gorilla.js"></script>
 </html>
