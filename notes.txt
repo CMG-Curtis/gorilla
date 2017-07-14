@@ -1,8 +1,9 @@
 Documents:
 user {
 	_id: <id>,
-	username: <username>,
+	link: <profile link>,
 	website: <website>,
+	username: <username>,
 	region: <region>,
 	platforms: [<platform>],
 	tournaments: [tournament._id], // Figure this out
@@ -13,6 +14,7 @@ user {
 
 tournament {
 	_id: <id>,
+	link: <tournament link>,
 	website: <website>,
 	region: <region>,
 	platform: <platform>,
@@ -24,30 +26,39 @@ tournament {
 	users: [user._id] // Figure this out
 }
 
-HTTP request for GB:
-var http = require('http');
+How this works:
 
-var host = "gamebattles.majorleaguegaming.com";
-var path = "/mobile/miniclip-8-ball-pool/tournament/1v1-miniclip-8-ball-07-06/teams";
+A mongo DB server is running on port the default port (27017) and handles all of the information in a single database. This database has two collections called users and tournaments. The mongo server is run with the --auth option meaning that all requests have to be authenticaled with a username and password.
 
-var options = {
-	host: host,
-	port: 80,
-	path: path,
-	headers: {'User-Agent':'javascript'}
-};
+On the same server, a node webserver (port 3000 now) is running that is purposed with interfacing the DB. The node server is running drivers to access the mongo DB (the mongodb package from node package manager). The server.js file defines the bahavior of this server. It is tasked with serving static files to the client (simple webserver stuff) as well as providing an interface to the mongo DB. This file contains all of the working code that takes requests to the webserver on given paths, and allows the client to access the DB.
 
-http.get(options, function(res) {
-	console.log("Got response: " + res.statusCode);
-	res.setEncoding('utf8');
-	res.on('data', (chunk) => {
-		console.log(chunk);
-	});
-}).on('error', function(e) {
-	console.log("Got error: " + e.message);
-});
+The client is sent files from the node webserver statically with all of the necessary functions that will allow them to interface the webserver, and in turn, the database. All of the functions for interacting with the DB are stored in the database.js file. The protocol for how the cline and server communicate are defined between this (database.js) file, and the webserver's server.js source file.
 
+All requests to the server are sent via POST requests so that the server can receive a body full of important info from the client. The body is comprised of JSON strings that have been stringified from the client. Almost every message between the client and the server is a string representation of a JSON object that has been stringified and needs to be parsed. This was the naturally the best option considering that the database, webserver, and client are all running javascript.
 
+Note: 'documents' is the term that mongo uses for the DB entries, they are essentially JSON objects
+
+TODO this needs to be more unified
+
+The body of the POST requests looks something like this:
+
+{
+	credentials: {
+		username:<username>,
+		password:<password>
+	},
+	query: {<mongo query object>},
+	document: {<document to be inserted into the DB>}
+}
+
+Where query and document are optional arguments, and are used for searching and writing to the DB respectively.
+
+Most responses from the server are in the following format:
+
+{
+	err: <err object from mongodb>,
+	documents: [<documents returned from a query...>]
+}
 
 
 Read and Write protocols:
@@ -64,3 +75,54 @@ err only exists if there was an error
 
 Documents matching query will go into documents
 Insertions will ping back the document inserted into documents array
+
+
+
+The new game plan:
+
+The /db/ node will handle every interaction with the db
+
+The /html/ node will server back HTML from the given url to avoid CORS
+
+Every server request needs to be in the same format
+
+Every response from the server needs to follow the same format
+
+
+All /db/ request must be done through POST requests
+
+/db/ request bodies:
+
+{
+	credentials: {
+		username: <username>,
+		password: <password>
+	},
+	collection: <collection>,
+	
+}
+
+/html/ request bodies:
+
+{
+	url: <url
+}
+
+Need some client and server side checks for the correctness of requests
+
+Every server response should be a JSON:
+
+{
+	error:<error object>,
+	message:<any message 
+}
+
+Create some sort of function to circumvent the:
+
+var body = '';
+req.on('data', (chunk) => {
+	body += chunk;
+}).on('end', () => {
+	var reqDoc = JSON.parse(body);
+		
+process in node.

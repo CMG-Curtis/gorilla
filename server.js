@@ -61,7 +61,6 @@ app.post('/db/:collection/', (req, res) => {
 			MongoClient.connect(getDatabaseURL(reqDoc.credentials.username, reqDoc.credentials.password), (err, db) => {
 				if (err) {
 					res.send(generateResponse([], err));
-					db.close()
 					return;
 				}
 				// TODO if reqDoc.delete
@@ -82,10 +81,12 @@ app.post('/db/:collection/', (req, res) => {
 					});
 				} else if(reqDoc.document){
 					if(reqDoc.document._id){
+						// Replace old document with new one
 						reqDoc.document._id = ObjectID(reqDoc.document._id);
 						db.collection(req.params.collection).replaceOne({_id: reqDoc.document._id},reqDoc.document);
 						db.close();
 					} else {
+						// Insert new document and have ID generated
 						db.collection(req.params.collection).insertOne(reqDoc.document);
 						db.close();
 					}

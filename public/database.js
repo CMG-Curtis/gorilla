@@ -89,6 +89,44 @@ Database._serverRequest = function(path, constructBody, onResponse){
 	http.send(JSON.stringify(body));
 }
 
+Database.insertUser = function(user, callback){
+	Database.getDocuments('users', {link: user.link}, function(response){
+		// Check if the user already exists in the DB
+		if(response.documents.length != 0){
+			// Add correct id to existing user and update the document
+			console.log('User already exists!');
+			var existing = response.documents[0];
+			user._id = existing._id;
+			Database.insertDocument('users', user);
+		} else {
+			// Insert the document into the DB
+			Database.insertDocument('users', user);
+		}
+		if(callback){
+			callback(response);
+		}
+	});
+};
+
+Database.insertTournament = function(tournament, callback){
+	Database.getDocuments('tournaments', {link: tournament.link}, function(response){
+		// Check if the tournament already exists in the DB
+		if(response.documents.length != 0){
+			// Add correct id to existing tournament and update the document
+			console.log('Tournament already exists!');
+			var existing = response.documents[0];
+			tournament._id = existing._id;
+			Database.insertDocument('tournaments', tournament);
+		} else {
+			// Insert the document into the DB
+			Database.insertDocument('tournaments', tournament);
+		}
+		if(callback){
+			callback(response);
+		}
+	});
+}
+
 function User(link, username, website, region, platforms, tournaments, twitterHandle, twitterFollowers, twitchUsername, twitchFollowers, youtubeUsername, youtubeSubscribers){
 	var u = {};
 	u.link = link;

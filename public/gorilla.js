@@ -23,12 +23,22 @@ submit.addEventListener('click', function(){
 });
 
 umgFarm.addEventListener('click', function(){
-	getPage(umgTournament.value, function(dom){
-		var a = dom.querySelectorAll('table#leaderboard-table a')[0].parentNode;
-		console.log(dom.querySelectorAll('table#leaderboard-table a'));
-		// TODO process umg
+	Database.insertUser(testSubject);
+	/*
+	UMG.processTournament(umgTournament.value, function(tournament, users){
+		for(user of users){
+			Database.insertUser(user, function(response){
+				console.log(response);
+			});
+		}
+		Database.insertDocument('tournaments', tournament, function(response){
+			console.log(response);
+		});
 	});
+	*/
 });
+
+var testSubject = new User('asdf', 'umg', 'username', 'US', ['PS4'], [],'myHandle');
 
 // Makes the server get the HTML of a page so we don't have to worry about CORS
 function getPage(url, callback){
@@ -73,3 +83,11 @@ function dissectURL(url){
 	}
 	return u;
 }
+
+// TODO define all the functions necessary for farming users
+
+var UMG = {};
+
+UMG.processTournament = function(url){
+	// TODO
+};
