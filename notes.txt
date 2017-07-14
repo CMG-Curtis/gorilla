@@ -118,11 +118,17 @@ Every server response should be a JSON:
 }
 
 Create some sort of function to circumvent the:
-
+/*
 var body = '';
 req.on('data', (chunk) => {
 	body += chunk;
 }).on('end', () => {
 	var reqDoc = JSON.parse(body);
-		
+	...
+*/
 process in node.
+
+Create a seperate module specifically for sending back the html of a website
+
+Consider having specialized methods for inserting users and tournaments on the server side.
+
