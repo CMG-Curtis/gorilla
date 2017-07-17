@@ -91,7 +91,7 @@ Database.insertTournament = function(tournament, callback){
 			tournament.users = _union(oldTourney.users, tournament.users);
 		}
 		// Insert the new document into the DB
-		Database.insertDocument('users', user, callback);
+		Database.insertDocument('tournaments', tournament, callback);
 	});
 };
 
@@ -172,7 +172,7 @@ function User(link, username, website, region, platforms, tournaments, twitterHa
 
 
 // Constructs a tournament document
-function Tournament(link, website, region, platform, game, date, details, teamSize, teamCount, users){
+function Tournament(link, website, region, platform, game, title, date, teamSize, teamCount, users){
 	// TODO make a check for required info
 	var t = {};
 	t.link = link;
@@ -180,11 +180,12 @@ function Tournament(link, website, region, platform, game, date, details, teamSi
 	t.region = region;
 	t.platform = platform;
 	t.game = game;
-	t.date = date;
 	t.title = title;
+	t.date = date;
 	t.teamSize = teamSize;
 	t.teamCount = teamCount;
 	t.users = users;
+	t.updated = new Date(Date.now());
 	return t;
 }
 
@@ -202,3 +203,37 @@ function _union(x, y){
 	}
 	return u;
 }
+
+// Constants
+
+var Games = {};
+
+Games.COD_MODERN_WARFARE_REMASTERED = 'Call of Duty: Modern Warfare Remastered';
+Games.COD_INFINITE_WARFARE = 'Call of Duty: Infinite Warfare';
+Games.COD_BLACK_OPS_3 = 'Call of Duty: Black Ops III';
+Games.COD_ADVANCED_WARFARE = 'Call of Duty: Advanced Warfare';
+Games.COD_GHOSTS = 'Call of Duty: Ghosts';
+Games.COD_BLACK_OPS_2 = 'Call of Duty: Black Ops II';
+Games.GEARS_OF_WAR_4 = 'Gears of War 4s'
+Games.HALO_5 = 'Halo 5';
+Games.ROCKET_LEAGUE = 'Rocket League';
+Games.FIFA_17 = 'FIFA 17';
+Games.RAINBOW_SIX_SIEGE = 'Rainbow Six: Siege';
+Games.NBA_2K17 = 'NBA 2K17';
+Games.UNCHARTED_4 = 'Uncharted 4';
+Games.DISC_JAM = 'Disc Jam';
+Games.POOL = '8 Ball Pool';
+Games.CLASH_ROYALE = 'Clash Royale';
+Games.SUPER_SMASH_BROS = 'Super Smash Bros';
+
+var Platforms = {};
+
+Platforms.XB1 = 'Xbox One';
+Platforms.PS4 = 'Playstation 4';
+Platforms.STEAM = 'Steam';
+Platforms.MOBILE = 'Mobile';
+
+var Regions = {};
+
+Regions.NA = 'NA';
+Regions.EU = 'EU';
