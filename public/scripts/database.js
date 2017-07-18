@@ -143,7 +143,7 @@ Database._serverRequest = function(path, constructBody, onResponse){
 }
 
 // Constructs a user document
-function User(link, username, website, region, platforms, tournaments, twitterHandle, twitterFollowers, twitchUsername, twitchFollowers, youtubeUsername, youtubeSubscribers){
+function User(link, username, website, region, platforms, tournaments, twitter, twitch, youtube){
 	var u = {};
 	// TODO make a check for required info
 	u.link = link;
@@ -152,20 +152,14 @@ function User(link, username, website, region, platforms, tournaments, twitterHa
 	u.region = region;
 	u.platforms = platforms;
 	u.tournaments = tournaments;
-	if(twitterHandle || twitterFollowers){
-		u.twitter = {};
-		u.twitter.username = twitterHandle;
-		u.twitter.followers = twitterFollowers;
+	if(twitter){
+		u.twitter = twitter;
 	}
-	if(twitchUsername || twitchFollowers){
-		u.twitch = {};
-		u.twitch.username = twitchUsername;
-		u.twitch.followers = twitchFollowers;
+	if(twitch){
+		u.twitch = twitch;
 	}
-	if(youtubeUsername || youtubeSubscribers){
-		u.youtube = {};
-		u.youtube.username = youtubeUsername;
-		u.youtube.username = youtubeSubscribers;
+	if(youtube){
+		u.youtube = youtube;
 	}
 	return u;
 }
@@ -197,7 +191,7 @@ function _union(x, y){
 		u.push(a);
 	}
 	for(var b of y){
-		if(!u.contains(b)){
+		if(!u.includes(b)){
 			u.push(b);
 		}
 	}

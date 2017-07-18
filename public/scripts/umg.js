@@ -24,16 +24,21 @@ var umgTournament = document.getElementById('umg-tournament');
 var umgFarm = document.getElementById('umg-farm');
 
 umgFarm.addEventListener('click', function(){
-	UMG.processUmgTournament(umgTournament.value);
+	// TODO make a check if the tournament already exists and only process it if the date is older than a certain amount of time
+	UMG.processTournament(umgTournament.value);
 });
 
 var UMG = {};
 
+UMG.onTournamentProcessingComplete = function(){
+	console.log('Tournament successfully processed!');
+};
+
 // Process a tournament from the given URL
-UMG.processUmgTournament = function(url){
+UMG.processTournament = function(url){
 	// Get tournament page
 	getPage(url, function(dom){
-		// TODO get tournament information first
+		// Gather tournament information
 		var gameTitle = UMG.getGameTitle(dom);
 		var platform = UMG.getPlatform(dom);
 		var title = UMG.getTitle(dom);
@@ -46,45 +51,73 @@ UMG.processUmgTournament = function(url){
 		getPage(url + '/teams', function(dom){
 			// Get the team links
 			var teams = dom.querySelectorAll('table#leaderboard-table tbody a');
-
+			// Get a bit more information
 			var teamCount = teams.length;
 
 			// Create tournament
 			var tournament = new Tournament(url, parseURL(url).host, region, platform, gameTitle, tournamentTitle, date, teamSize, teamCount, []);
 
-			// Insert tournament into DB without any users
+			// Insert tournament into DB without any users so we can get an _id
 			Database.insertTournament(tournament, function(response){
-				// Assign tournaments to the One from the server to give it an _id
+				// Assign tournaments to the doc from the server to give it an _id
 				tournament = response.documents[0];
-
-				/*
-				For each user:
-				Build user
-				Add user to tournament
-				Submit user
-				Resubmit the updated tournament
-				*/
-
-				// For each team link
-				for(team of teams){
-					getPage(team.href, function(dom){
-						var table = dom.querySelector('div.table-responsive');
-						var userLinks = table.querySelectorAll('tbody tr td a.strong');
-						// For each user link
-						for(user of userLinks){
-							getPage(user.href, function(dom){
-								var u = UMG.generateUser(dom, user.href);
-							});
-						}
-					});
-				}
-
-				// TODO update the tournament after the users are done
 				
+				// Setup a count so we can keep track of when we are done processing users
+				tournament.userCount = 0;
+				tournament.userProcessed = 0;
+				
+				for(team of teams){
+					UMG.processTeam(team, tournament);
+				}
 			});
 		});
 	});
 };
+
+UMG.processTeam = function(team, tournament){
+	getPage(team.href, function(dom){
+		// Build user list
+		var table = dom.querySelector('div.table-responsive');
+		var users = table.querySelectorAll('tbody tr td a.strong');
+		
+		// Track the amount of users that are being processed
+		tournament.userCount += users.length;
+		
+		// Process all users
+		for(user of users){
+			UMG.processUser(user, tournament, team);
+		}
+	});
+};
+
+UMG.processUser = function(user, tournament, team){
+	getPage(user.href, function(dom){
+		var username = UMG.getUsername(dom);
+		var website = parseURL(user.href).host;
+		var region = tournament.region;
+		var platforms = UMG.getPlatforms(dom);
+		var tournaments = [tournament._id];
+		var twitter = UMG.getTwitter(dom);
+		var twitch = UMG.getTwitch(dom);
+		var youtube = UMG.getYoutube(dom);
+		var u = new User(user.href, username, website, region, platforms, tournaments, twitter, twitch, youtube);
+		Database.insertUser(u, function(response){
+			// Get the id of the user that was just inserted
+			tournament.users.push(response.documents[0]._id);
+			// Increment the processed users
+			tournament.userProcessed++;
+			// If we have processed all the users
+			if(tournament.userProcessed == tournament.userCount){
+				delete tournament.userProcessed;
+				delete tournament.userCount;
+				// Insert tournament with updated users array
+				Database.insertTournament(tournament, function(response){
+					UMG.onTournamentProcessingComplete();
+				});
+			}
+		});
+	});
+}
 
 UMG.getGameTitle = function(dom){
 	var text = dom.querySelector('div.tournament-image > div').getAttribute('style');
@@ -166,7 +199,49 @@ UMG.getTeamSize = function(dom){
 	return null;
 };
 
-UMG.generateUser = function(dom, url){
-	var u = new User(url);
-	// TODO return constructed user
-};
+UMG.getUsername = function(dom){
+	var element  = dom.querySelector('div.col-sm-6 > h2');
+	if(element){
+		return element.innerHTML.replace(/\r?\n|\r| |\t/g, '');
+	}
+	return null;
+}
+
+UMG.getPlatforms = function(dom){
+	var element  = dom.querySelector('div.col-sm-6 > ul:nth-child(3)');
+	if(element){
+		var platforms = [];
+		if(element.innerHTML.includes('xbox')){
+			platforms.push(Platforms.XB1);
+		}
+		if(element.innerHTML.includes('ps4')){
+			platforms.push(Platforms.PS4);
+		}
+		return platforms;
+	}
+	return [];
+}
+
+UMG.getTwitter = function(dom){
+	var element  = dom.querySelector('div.col-sm-6 > ul:nth-child(2) a[href*="twitter.com"]');
+	if(element){
+		return element.href;
+	}
+	return null;
+}
+
+UMG.getTwitch = function(dom){
+	var element  = dom.querySelector('div.col-sm-6 > ul:nth-child(1) a[href*="twitch.tv"]');
+	if(element){
+		return element.href;
+	}
+	return null;
+}
+
+UMG.getYoutube = function(dom){
+	var element  = dom.querySelector('div.col-sm-6 > ul:nth-child(1) a[href*="youtube.com"]');
+	if(element){
+		return element.href;
+	}
+	return null;
+}

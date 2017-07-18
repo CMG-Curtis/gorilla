@@ -105,8 +105,8 @@ function deleteAllEntries(username, password, collection){
 	});
 }
 
-//deleteAllEntries('cmguser', 'cmgpass', 'users');
-//deleteAllEntries('cmguser', 'cmgpass', 'tournaments');
+deleteAllEntries('cmguser', 'cmgpass', 'users');
+deleteAllEntries('cmguser', 'cmgpass', 'tournaments');
 
 // Setup static routes for webserver
 app.use(express.static('public'));
