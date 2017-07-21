@@ -1,0 +1,31 @@
+{
+  "name": "gorilla",
+  "version": "1.0.0",
+  "description": "Scrapes the web for tournament info",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.15.3",
+    "mongodb": "^2.2.30",
+    "node-dom": "^0.1.0",
+    "phantom": "^4.0.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CMG-Curtis/gorilla.git"
+  },
+  "keywords": [
+    "scrape",
+    "node"
+  ],
+  "author": "GibsDev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CMG-Curtis/gorilla/issues"
+  },
+  "homepage": "https://github.com/CMG-Curtis/gorilla#readme"
+}
