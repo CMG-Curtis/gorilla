@@ -3,38 +3,54 @@
 	box-sizing: border-box;
 }
 
-body {
-	display: flex;
-	flex-wrap: wrap;
-	margin: 0;
-	padding: 5px;
-}
-
 button {
 	padding: 4px 10px;
 }
 
-div.flex-column {
-	display: flex;
-	flex-direction: column;
+body {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr 1fr;
+	grid-template-rows: auto;
+	grid-column-gap: 10px;
+	grid-row-gap: 10px;
+	grid-template-areas: 
+    "login response response response"
+    "query response response response"
+    "umg umg gb gb";
 }
 
-div.flex-row {
-	display: flex;
-	flex-direction: row;
+.login {
+	grid-area: login;
 }
 
-div.span {
-	width: 100%;
+.query {
+	grid-area: query;
+}
+
+.response {
+	grid-area: response;
+}
+
+.umg {
+	grid-area: umg;
+}
+
+.gb {
+	grid-area: gb;
+}
+
+.umg span {
+	display: block;
+	width: inherit;
+}
+
+.gb span {
+	display: block;
+	width: inherit;
 }
 
 #query {
 	font-family: monospace;
-}
-
-#response {
-	flex-grow: 1;
-	min-width: 600px;
 }
 
 #server-response {
@@ -42,12 +58,11 @@ div.span {
 	tab-size: 4;
 	overflow-y: auto;
 	overflow-x: auto;
-	height: 295px;
+	max-height: 295px;
 	padding: 10px;
 }
 
 div.simple {
-	margin: 5px;
 	border: 1px solid #bbb;
 }
 
@@ -79,4 +94,15 @@ div.simple > * {
 
 .login-failure {
 	background: #fee;
+}
+
+.loading {
+	display: none;
+	width: 50px;
+	height: 50px;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
 }

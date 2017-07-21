@@ -3,6 +3,7 @@ const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
 const express = require('express');
 const app = express();
+const phantom = require('phantom');
 const port = 3000;
 
 // Local modules
@@ -25,10 +26,32 @@ app.post('/html', (req, res) => {
 			res.send('Invalid url');
 			return;
 		}
-		// Send back the html of the page
-		gethtml(reqDoc.url, (html) => {
-			res.send(html);
-		});
+		
+		// Render out the full page's AJAX requests before sending it back
+		if(reqDoc.url.includes('profile.majorleaguegaming.com')){
+			(async function() {
+				const instance = await phantom.create();
+				const page = await instance.createPage();
+				await page.on("onResourceRequested", function(requestData) {
+					//console.info('Requesting', requestData.url)
+				});
+
+				const status = await page.open(reqDoc.url);
+				//console.log(status);
+
+				const content = await page.property('content');
+				//console.log(content);
+
+				await instance.exit();
+				// Send back the fully rendered page
+				res.send(content);
+			}());
+		} else { // Any page that isnt MLG
+			// Send back the html of the page
+			gethtml(reqDoc.url, (html) => {
+				res.send(html);
+			});
+		}
 	});
 });
 

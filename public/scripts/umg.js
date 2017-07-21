@@ -22,16 +22,28 @@ var gameImages = {
 
 var umgTournament = document.getElementById('umg-tournament');
 var umgFarm = document.getElementById('umg-farm');
+var umgSpinner = umgFarm.nextSibling.nextSibling;
+umgFarm.disabled = true;
 
 umgFarm.addEventListener('click', function(){
 	// TODO make a check if the tournament already exists and only process it if the date is older than a certain amount of time
-	UMG.processTournament(umgTournament.value);
+	if(!umgFarm.disabled){
+		UMG.processTournament(umgTournament.value);
+		umgFarm.style.display = 'none';
+		umgSpinner.style.display = 'block';
+	}
+});
+
+Login.onSuccess.push(function(){
+	umgFarm.disabled = false;
 });
 
 var UMG = {};
 
 UMG.onTournamentProcessingComplete = function(){
 	console.log('Tournament successfully processed!');
+	umgFarm.style.display = 'block';
+	umgSpinner.style.display = 'none';
 };
 
 // Process a tournament from the given URL
@@ -171,14 +183,6 @@ UMG.getDate = function(dom){
 	return date;
 };
 
-UMG.getTitle = function(dom){
-	var element = dom.querySelector('div.col-sm-6 > h2');
-	if(element){
-		return element.innerHTML;
-	}
-	return null;
-};
-
 UMG.getRegion = function(dom) {
 	var element = dom.querySelector('div.col-sm-6 > ul > li');
 	if(element){
@@ -210,16 +214,18 @@ UMG.getUsername = function(dom){
 UMG.getPlatforms = function(dom){
 	var element  = dom.querySelector('div.col-sm-6 > ul:nth-child(3)');
 	if(element){
-		var platforms = [];
+		var platforms = {};
 		if(element.innerHTML.includes('xbox')){
-			platforms.push(Platforms.XB1);
+			var gt = element.querySelector('li > i[class*="xbox"]').nextSibling.textContent.substring(1);
+			platforms[Platforms.XB1] = gt;
 		}
 		if(element.innerHTML.includes('ps4')){
-			platforms.push(Platforms.PS4);
+			var gt = element.querySelector('li > i[class*="ps4"]').nextSibling.textContent.substring(1);
+			platforms[Platforms.PS4] = gt;
 		}
 		return platforms;
 	}
-	return [];
+	return {};
 }
 
 UMG.getTwitter = function(dom){

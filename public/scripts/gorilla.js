@@ -9,20 +9,33 @@ var collection = document.getElementById('collection');
 var query = document.getElementById('query');
 var submit = document.getElementById('submit');
 
+var Login = {};
+Login.onSuccess = [];
+Login.onFailure = [];
+
 login.addEventListener('click', function(){
 	Database.login(username.value, password.value, function(){
-		loginDiv.className = 'login-success';
+		for(func of Login.onSuccess){
+			func();
+		}
 	}, function(){
-		loginDiv.className = 'login-failure';
+		for(func of Login.onFailure){
+			func();
+		}
 	});
+});
+
+Login.onSuccess.push(function(){
+	loginDiv.className = 'login-success';
+});
+
+Login.onFailure.push(function(){
+	loginDiv.className = 'login-failure';
 });
 
 submit.addEventListener('click', function(){
 	Database.getDocuments(collection.value, JSON.parse(query.value));
 });
-
-
-var testSubject = new User('asdf', 'umg', 'username', 'US', ['PS4'], [],'myHandle');
 
 // Makes the server get the HTML of a page so we don't have to worry about CORS
 function getPage(url, callback){
