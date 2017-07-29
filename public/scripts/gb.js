@@ -36,6 +36,7 @@ GB.processTournament = function(url){
 		var region = GB.getRegion(dom);
 		var tournamentTitle = GB.getTitle(dom);
 		var date = GB.getDate(dom);
+		var entry = GB.getEntry(dom);
 		var teamSize = GB.getTeamSize(dom);
 
 		// Open the teams page
@@ -46,7 +47,7 @@ GB.processTournament = function(url){
 			var teamCount = teams.length;
 
 			// Create tournament
-			var tournament = new Tournament(url, parseURL(url).host, region, platform, gameTitle, tournamentTitle, date, teamSize, teamCount, []);
+			var tournament = new Tournament(url, parseURL(url).host, region, platform, gameTitle, tournamentTitle, date, entry, teamSize, teamCount, []);
 
 			// Insert tournament into DB without any users so we can get an _id
 			Database.insertTournament(tournament, function(response){
@@ -147,6 +148,14 @@ GB.getDate = function(dom){
 		date = new Date(text);
 	}
 	return date;
+};
+
+GB.getEntry = function(dom){
+	var element = dom.querySelector('div.boxContent > div.lt > strong:nth-child(4)');
+	if(element){
+		return parseInt(element.innerHTML);
+	}
+	return null;
 };
 
 GB.getRegion = function(dom) {

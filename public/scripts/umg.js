@@ -57,6 +57,7 @@ UMG.processTournament = function(url){
 		var region = UMG.getRegion(dom);
 		var tournamentTitle = UMG.getTitle(dom);
 		var date = UMG.getDate(dom);
+		var entry = UMG.getEntry(dom);
 		var teamSize = UMG.getTeamSize(dom);
 
 		// Open the teams page
@@ -67,7 +68,7 @@ UMG.processTournament = function(url){
 			var teamCount = teams.length;
 
 			// Create tournament
-			var tournament = new Tournament(url, parseURL(url).host, region, platform, gameTitle, tournamentTitle, date, teamSize, teamCount, []);
+			var tournament = new Tournament(url, parseURL(url).host, region, platform, gameTitle, tournamentTitle, date, entry, teamSize, teamCount, []);
 
 			// Insert tournament into DB without any users so we can get an _id
 			Database.insertTournament(tournament, function(response){
@@ -181,6 +182,14 @@ UMG.getDate = function(dom){
 		date = new Date(year, month, day, hour, minute);
 	}
 	return date;
+};
+
+UMG.getEntry = function(dom){
+	var element = dom.querySelector('div.container div.row div.row ul:nth-child(1) li:nth-child(1) p span');
+	if(element){
+		return parseInt(element.innerHTML);
+	}
+	return null;
 };
 
 UMG.getRegion = function(dom) {

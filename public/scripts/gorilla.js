@@ -9,6 +9,8 @@ var collection = document.getElementById('collection');
 var query = document.getElementById('query');
 var submit = document.getElementById('submit');
 
+var results = document.getElementById('results');
+
 var Login = {};
 Login.onSuccess = [];
 Login.onFailure = [];

@@ -166,7 +166,7 @@ function User(link, username, website, region, platforms, tournaments, twitter, 
 
 
 // Constructs a tournament document
-function Tournament(link, website, region, platform, game, title, date, teamSize, teamCount, users){
+function Tournament(link, website, region, platform, game, title, date, entry, teamSize, teamCount, users){
 	// TODO make a check for required info
 	var t = {};
 	t.link = link;
@@ -176,6 +176,7 @@ function Tournament(link, website, region, platform, game, title, date, teamSize
 	t.game = game;
 	t.title = title;
 	t.date = date;
+	t.entry = entry;
 	t.teamSize = teamSize;
 	t.teamCount = teamCount;
 	t.users = users;

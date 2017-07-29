@@ -7,7 +7,7 @@ button {
 	padding: 4px 10px;
 }
 
-body {
+body.grid {
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr 1fr;
 	grid-template-rows: auto;
@@ -16,7 +16,9 @@ body {
 	grid-template-areas: 
     "login response response response"
     "query response response response"
-    "umg umg gb gb";
+    "links response response response"
+    "umg umg gb gb"
+    "results results results results";
 }
 
 .login {
@@ -39,6 +41,14 @@ body {
 	grid-area: gb;
 }
 
+.links {
+	grid-area: links;
+}
+
+.results {
+	grid-area: results;
+}
+
 .umg span {
 	display: block;
 	width: inherit;
@@ -58,7 +68,7 @@ body {
 	tab-size: 4;
 	overflow-y: auto;
 	overflow-x: auto;
-	max-height: 295px;
+	max-height: 500px;
 	padding: 10px;
 }
 
