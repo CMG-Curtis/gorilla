@@ -39,6 +39,10 @@ submit.addEventListener('click', function(){
 	Database.getDocuments(collection.value, JSON.parse(query.value));
 });
 
+Login.onSuccess.push(function(){
+	// TODO go back and farm all umg tournaments????
+});
+
 // Makes the server get the HTML of a page so we don't have to worry about CORS
 function getPage(url, callback){
 	// Parse the given url so that we can use that info later

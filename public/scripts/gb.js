@@ -202,25 +202,25 @@ GB.getPlatforms = function(dom){
 }
 
 GB.getTwitter = function(dom){
-	var element  = dom.querySelector('div.mlg-networks > a[href*="twitter.com"]');
+	var element  = dom.querySelector('div.mlg-networks > span[network-url*="twitter.com"]');
 	if(element){
-		return element.href;
+		return element.getAttribute('network-url');
 	}
 	return null;
 }
 
 GB.getTwitch = function(dom){
-	var element  = dom.querySelector('div.mlg-networks > a[href*="twitch.tv"');
+	var element  = dom.querySelector('div.mlg-networks > span[network-url*="twitch.tv"');
 	if(element){
-		return element.href;
+		return element.getAttribute('network-url');
 	}
 	return null;
 }
 
 GB.getYoutube = function(dom){
-	var element  = dom.querySelector('div.mlg-networks > a[href*="youtube.com"');
+	var element  = dom.querySelector('div.mlg-networks > span[network-url*="youtube.com"');
 	if(element){
-		return element.href;
+		return element.getAttribute('network-url');
 	}
 	return null;
 }

@@ -4,6 +4,8 @@ const http = require('http');
 const https = require('https');
 const URL = require('url');
 
+const phantom = require('phantom');
+
 // Create a dictionary to get http or https
 var http_protocols = {'http:': http, 'https:': https};
 
@@ -18,16 +20,36 @@ module.exports = function(url, callback){
 		path: u.path,
 		headers: {'User-Agent':'javascript'}
 	};
-	// Send the GET request for the page
-	protocol.get(options, (res) => {
-		// Parse the body of the response
-		var body = '';
-		res.on('data', (chunk) => { body += chunk; });
-		res.on('end', () => {
-			if(callback){
-				// Return the page html to the callback function
-				callback(body);
-			}
+
+	if(url.includes('profile.majorleaguegaming')){
+		(async function() {
+			const instance = await phantom.create();
+			const page = await instance.createPage();
+			await page.on("onResourceRequested", function(requestData) {
+				//console.info('Requesting', requestData.url)
+			});
+		
+			const status = await page.open(url);
+			//console.log(status);
+		
+			const content = await page.property('content');
+			callback(content);
+		
+			await instance.exit();
+		}());
+	} else {
+		// Send the GET request for the page
+		protocol.get(options, (res) => {
+			// Parse the body of the response
+			var body = '';
+			res.on('data', (chunk) => { body += chunk; });
+			res.on('end', () => {
+				if(callback){
+					// Return the page html to the callback function
+					callback(body);
+				}
+			});
 		});
-	});
+	}
+
 };
