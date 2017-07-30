@@ -49,6 +49,11 @@ body.grid {
 	grid-area: results;
 }
 
+.results a {
+	display: block;
+	font-family: monospace;
+}
+
 .umg span {
 	display: block;
 	width: inherit;
