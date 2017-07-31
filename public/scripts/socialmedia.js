@@ -22,27 +22,3 @@ Twitter.getFollowers = function(url, callback){
 		}
 	});
 };
-
-var twitterQuery = document.getElementById('twitter');
-var twitterQueryFilter = document.getElementById('twitterFollwersFilter');
-
-var results = document.getElementById('results');
-
-twitterQuery.addEventListener('click', function(){
-	results.innerHTML = '';
-	Database.getDocuments('users', { "twitter" : { "$exists" : true } }, function(res){
-		var len = res.documents.length;
-		res.documents.forEach(function(listItem, index){
-			Twitter.getFollowers(listItem.twitter, function(followers){
-				if(followers > twitterQueryFilter.value){
-					var splitting = listItem.twitter.split('/');
-					var handle = splitting[splitting.length - 1];
-					results.innerHTML += '<a target="_blank" href="' + listItem.twitter + '">' + followers  + ' : ' + handle + '</a>';
-				}
-				if(index == len - 1){
-					results.innerHTML += '<p>Done.</p>'
-				}
-			});
-		});
-	});
-});
