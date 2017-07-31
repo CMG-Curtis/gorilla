@@ -39,27 +39,29 @@ euQuery.addEventListener('click', function(){
 	Database.getDocuments('users', { "region" : "EU" }, function(res){
 		var len = res.documents.length;
 		res.documents.forEach(function(listItem, index){
-			table += '<tr>';
-			table += '<td>' + '<a href="' + listItem.link + '">' + listItem.username + '</a></td>';
 			if(listItem.twitter){
-				table += '<td>' + '<a href="' + listItem.twitter + '">' + listItem.twitter + '</a></td>';
-			} else {
-				table += '<td></td>';
-			}
-			if(listItem.platforms['Xbox One']){
-				table += '<td>' + listItem.platforms['Xbox One'] + '</td>';
-			} else {
-				table += '<td></td>';
-			}
-			if(listItem.platforms['Playstation 4']){
-				table += '<td>' + listItem.platforms['Playstation 4'] + '</td>';
-			} else {
-				table += '<td></td>';
-			}
-			table += '</tr>';
-			if(index == len - 1){
-				tableElement.innerHTML = table;
-				results.appendChild(tableElement);
+				table += '<tr>';
+				table += '<td>' + '<a href="' + listItem.link + '">' + listItem.username + '</a></td>';
+				if(listItem.twitter){
+					table += '<td>' + '<a href="' + listItem.twitter + '">' + listItem.twitter + '</a></td>';
+				} else {
+					table += '<td></td>';
+				}
+				if(listItem.platforms['Xbox One']){
+					table += '<td>' + listItem.platforms['Xbox One'] + '</td>';
+				} else {
+					table += '<td></td>';
+				}
+				if(listItem.platforms['Playstation 4']){
+					table += '<td>' + listItem.platforms['Playstation 4'] + '</td>';
+				} else {
+					table += '<td></td>';
+				}
+				table += '</tr>';
+				if(index == len - 1){
+					tableElement.innerHTML = table;
+					results.appendChild(tableElement);
+				}
 			}
 		});
 	});
