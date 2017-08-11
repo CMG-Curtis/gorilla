@@ -1,4 +1,6 @@
-// This module is responsible for getting the html of a page
+// This module is responsible for getting the html of any page that is requested
+
+// TODO create a more generic way of detecting ajax calls (search the html for 'ajax' maybe?)
 
 const http = require('http');
 const https = require('https');

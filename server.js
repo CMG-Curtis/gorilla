@@ -1,13 +1,12 @@
 // NPM modules
-const MongoClient = require('mongodb').MongoClient;
-const ObjectID = require('mongodb').ObjectID;
 const express = require('express');
 const app = express();
 const port = 3000;
 
 // Local modules
-const gethtml = require('./gethtml.js');
-
+const database = require('./database')();
+const gethtml = require('./gethtml');
+const tracker = require('./tracker');
 
 // Database information
 var DATABASE = 'gorilla';
@@ -94,20 +93,6 @@ function generateResponse(documents, err){
 	return JSON.stringify(responseObject);
 }
 
-// Remove all entries from the given collection
-// TODO create a way of exposing this to server request with proper response
-function deleteAllEntries(username, password, collection){
-	MongoClient.connect(getDatabaseURL(username, password), (err, db) => {
-		if (err) throw err;
-		var col = db.collection(collection);
-		col.deleteMany();
-		db.close();
-	});
-}
-
-//deleteAllEntries('cmguser', 'cmgpass', 'users');
-//deleteAllEntries('cmguser', 'cmgpass', 'tournaments');
-
 // Setup static routes for webserver
 app.use(express.static('public'));
 
@@ -116,7 +101,5 @@ app.listen(port, () => {
 	console.log('Webserver listening on ' + port);
 });
 
-// Generate the link to connect to the database with the given username and password
-function getDatabaseURL(username, password){
-	return 'mongodb://' + username + ':' + password + '@localhost:27017/' + DATABASE;
-}
+// Start tournament tracking
+tracker.start();

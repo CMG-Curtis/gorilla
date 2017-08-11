@@ -132,3 +132,12 @@ Create a seperate module specifically for sending back the html of a website
 
 Consider having specialized methods for inserting users and tournaments on the server side.
 
+TODO
+
+Keep all of the web scraping on the server (need to transfer code to server side for scraping using jsdom)
+
+When the server is running continuously check all the sites for tournaments
+
+Set timeouts for an hour after start time for each tournament to process it
+
+The client will only be for pulling data from the database
